@@ -1,0 +1,14 @@
+tr {
+	border: 1px solid black;
+}
+td {
+	border: 1px solid red;
+}
+table {
+	border-collapse: collapse;
+  	border-spacing: 0;
+}
+img {
+	width: 65px;
+	height: 65px;
+}
