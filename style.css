@@ -1,14 +1,62 @@
+
 tr {
 	border: 1px solid black;
+	padding: 0px;
 }
 td {
 	border: 1px solid red;
+	padding: 0px;
 }
 table {
 	border-collapse: collapse;
   	border-spacing: 0;
 }
-img {
+img.circle {
 	width: 65px;
 	height: 65px;
+}
+div.circle {
+	width: 65px;
+	height: 65px;
+	background: url("static/img/circle.png") center no-repeat;
+}
+div.arrow {
+	height: 40px;
+	width: 65px;
+	position: relative;
+}
+div.arrow img {
+	height: 60px;
+	width: 15px;
+	margin-top: -12px;
+}
+img.point-left {
+   	position: absolute;
+   	right: 0;
+   	margin-right: -5px;
+	transform: rotate(30deg);
+   -moz-transform: rotate(30deg);
+   -webkit-transform: rotate(30deg);
+}
+img.point-left.sec {
+	position: absolute;
+	right: 15px;
+}
+img.point-left.thr {
+	position: absolute;
+	right: -15px;
+}
+img.point-left.fth {
+	position: absolute;
+	right: 30px;
+}
+img.point-right {
+	margin-left: -5px;
+	transform: rotate(-30deg);
+   -moz-transform: rotate(-30deg);
+   -webkit-transform: rotate(-30deg);
+}
+img.point-right.thr{
+	position: absolute;
+	left: -15px;
 }
