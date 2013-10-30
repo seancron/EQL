@@ -60,3 +60,47 @@ img.point-right.thr{
 	position: absolute;
 	left: -15px;
 }
+/*********************************************************************/
+#body-wrapper {
+	height: 700px;
+	width: 900px;
+	margin: 0px auto;
+}
+#button-wrapper {
+	margin: 5px;
+}
+#display-wrapper {
+	width: 100%;
+	height: 630px;
+	padding: 0px;
+	margin: 0px;
+}
+.circle-wrapper {
+	display: block;
+	border: 1px dashed black;
+	height: 25%;
+	width: 100%;
+}
+.circle-canvas {
+	width: 100%;
+	border: 1px dashed red;
+	padding: 0px;
+	margin: 0px;
+}
+.arrow-canvas {
+	padding: 0px;
+	margin: 0px;
+}
+.circle {
+	border: 1px dashed purple;
+	padding: 0px;
+	margin: 0px;
+}
+.arrow {
+	border: 1px dashed orange;
+	padding: 0px;
+	margin: 0px;
+}
+#row1 {
+	height: 50%;
+}
