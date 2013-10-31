@@ -362,5 +362,27 @@ $(document).ready( function() {
         window.location.reload();
     });
 
+    $("#stage").on("click", function() {
+    	if (parPos == null ) {
+			moveParticle();
+		}
+    	while ( parPos != null && parPos.arrows[0] != undefined  && parPos.arrows[0].tarX < 5 ) {
+    		if (parPos == null ) {
+				moveParticle();
+			}
+			else if (arw == null) {
+				arw = moveArrow();
+			}
+			else {
+				moveParticle();
+			}
+
+			if (parPos.arrows[0] == undefined) {
+				parPos = null;
+				arw = null;
+			}
+    	}
+    });
+
 
 });
