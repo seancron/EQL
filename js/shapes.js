@@ -10,7 +10,7 @@ $(document).ready( function() {
 						x: x,
 						y: y,
 						radius: 35,
-						fill: 'green',
+						fill: 'white',
 						stroke: 'black',
 						strokeWidth: 2
 					});
@@ -92,18 +92,6 @@ $(document).ready( function() {
 			text_layer.draw();
 		}
 	}
-
-	//Arrows
-	// var arrow1 = canvas_arrow( xCoor, yCoor, (xCoor - xInt), (yCoor + yInt) , true);
-	// var arrow2 = canvas_arrow( xCoor, yCoor, (xCoor + (xInt/2)), (yCoor + (yInt/2)) ,true);
-	// var arrow3 = canvas_arrow( xCoor, yCoor, (xCoor - (xInt/2)), (yCoor + (yInt/2)) ,false);
-	// var arrow4 = canvas_arrow( xCoor, yCoor, (xCoor + xInt), (yCoor + yInt) , false);
-	// arrows_layer.add(arrow1);
-	// arrows_layer.add(arrow2);
-	// arrows_layer.add(arrow3);
-	// arrows_layer.add(arrow4);
-	// stage.add(arrows_layer);
-
 
 	addArrows(0, 0, 1, 0, -0.259, 0.966, 0.707, -0.707, 1);
 	addArrows(0, 0, 1, 1, 0.259, 0.966, -0.707, -0.707, 2);
@@ -239,6 +227,19 @@ $(document).ready( function() {
 		arrows_layer.draw();
 	}
 
+	function clearPath() {
+		for( var i=0; i<4; i++) {
+			for (var j=0; j<shape_list[i].length; j++) {
+				for( var k=0; k<shape_list[i][j].arrows.length; k++ ) {
+					if (shape_list[i][j].arrows[k].large_arrow.getStroke() == "red") {
+						shape_list[i][j].arrows[k].large_arrow.setStroke('black');
+					}
+				}
+			}
+		}
+		arrows_layer.draw();
+	}
+
 	function moveParticle() {
 		if ( parPos == null ) {
 			parPos = shape_list[0][0];
@@ -277,6 +278,7 @@ $(document).ready( function() {
 			parPos = shape_list[0][0];
 			parPos.selected = true;
 			selectCircle(parPos);
+			clearPath();
 			return null;
 		}
 		selectArrow(next);
@@ -289,24 +291,26 @@ $(document).ready( function() {
 		arw.selected = true;
 		arw.large_arrow.show();
 		arw.small_arrow.hide();
+		arw.large_arrow.setStroke("red");
 	}
 
 	function unselectArrow(arw) {
 		arw.selected = false;
 		arw.large_arrow.hide();
 		arw.small_arrow.show();
+		arw.large_arrow.setStroke("black");
 	}
 
 	function selectCircle(obj) {
 		var shape = obj.shape;
-		if ( shape.getFill() == "green" ) {
+		if ( shape.getFill() == "white" ) {
 			shape.setFill("red");
 			shape.setStrokeWidth(8);
 			obj.odometer++;
 			obj.text.setText(obj.odometer);
 		}
 		else {
-			shape.setFill("green");
+			shape.setFill("white");
 			shape.setStrokeWidth(2);
 		}
 		circle_layer.draw();
@@ -331,6 +335,7 @@ $(document).ready( function() {
 
 	$("#testing2").on("click", function() {
 		if (parPos == null ) {
+			clearPath();
 			moveParticle();
 		}
 		else if (arw == null) {
@@ -364,6 +369,7 @@ $(document).ready( function() {
 
     $("#stage").on("click", function() {
     	if (parPos == null ) {
+    		clearPath();
 			moveParticle();
 		}
     	while ( parPos != null && parPos.arrows[0] != undefined  && parPos.arrows[0].tarX < 5 ) {
@@ -382,6 +388,10 @@ $(document).ready( function() {
 				arw = null;
 			}
     	}
+    	if (parPos.arrows[0] == undefined) {
+				parPos = null;
+				arw = null;
+			}
     });
 
 
