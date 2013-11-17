@@ -95,10 +95,10 @@ $(document).ready( function() {
 		shape_list[i].push( new Shape_Obj(x, y, 35, i, temp) );
 		var j = shape_list[i].length - 1;
 		shape_layer.add(shape_list[i][j].shape);
-		if ( j==0 ) {
+		if ( j == 0 ) {
 			shape_list[i][j].border = true;
 		}
-		else if (j==i+1) {
+		else if (j == i+1) {
 			toggleSign(shape_list[i][j]);
 			shape_list[i][j].border = true;
 		}
@@ -106,15 +106,17 @@ $(document).ready( function() {
 
 	function toggleSign(obj) {
 		var shape = obj.shape;
-		if (obj.charge == 'positive') {
-			obj.charge = 'negative';
-			shape.setFill('yellow');
+		if ( !obj.border ) {
+			if (obj.charge == 'positive') {
+				obj.charge = 'negative';
+				shape.setFill('yellow');
+			}
+			else {
+				obj.charge = 'positive';
+				shape.setFill('blue');
+			}
+			shape_layer.draw();
 		}
-		else {
-			obj.charge = 'positive';
-			shape.setFill('blue');
-		}
-		shape_layer.draw();
 	}
 
 	function Line_Obj() {
@@ -130,7 +132,9 @@ $(document).ready( function() {
 		this.ptr1 = shape_list[0][0];
 		this.ptr2 = shape_list[0][1];
 		this.ptr3 = shape_list[1][1];
-		this.tar = shape_list[1][1];
+		toggleSign(this.ptr1);
+		toggleSign(this.ptr2);
+		toggleSign(this.ptr3);
 	}
 
 	function contLine(obj, direction) {
@@ -144,13 +148,28 @@ $(document).ready( function() {
 			newX = (direction * 70) + lastX;
 			newY = lastY + 40;
 			obj.type = 'angled';
-			if ( direction == -1 ) {
-				var i = ptr3.i;
-				var j = ptr3.j;
-				linePtr.tar = shape_list[i-1][j+1];
-			}
+			
 		}
 		else if (obj.type == 'angled') {
+			//if ( direction == -1 ) {
+				//if left
+				// var i = obj.ptr3.i;
+				// var j = obj.ptr3.j;
+				// obj.ptr2 = shape_list[i][j-1];
+				// toggleSign(obj.ptr1);
+				// toggleSign(obj.ptr2);
+				// toggleSign(obj.ptr3);
+			//}
+			//else ( direction == 1 ) {
+			// 	//if left
+			// 	var i = obj.ptr2.i;
+			// 	var j = obj.ptr2.j;
+			// 	var temp = shape_list[i+1][i+1];
+
+			// 	toggleSign(obj.ptr1);
+			// 	toggleSign(obj.ptr2);
+			// 	toggleSign(obj.ptr3);
+			//}
 			newX = lastX;
 			newY = yInt * direction;
 			obj.type = 'straight';
@@ -187,7 +206,7 @@ $(document).ready( function() {
 			path_layer.add(linePtr.line);
 			path_layer.draw();
 			count = count+1;
-			flip = true;
+			//flip = true;
 			return;
 		}
 		if ( count == 6 ) {
@@ -198,11 +217,11 @@ $(document).ready( function() {
 			test = test * -1;
 			return;
 		}
-		if ( flip ) {
-			toggleSign(linePtr.tar);
-			flip = false;
-			return;
-		}
+		// if ( flip ) {
+		// 	toggleSign(linePtr.tar);
+		// 	flip = false;
+		// 	return;
+		// }
 
 		if ( linePtr.type == 'straight') {
 			contLine(linePtr, test);
