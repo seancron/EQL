@@ -19,15 +19,6 @@ $(document).ready( function() {
 					});
 		this.charge = 'negative';
 		this.border = false;
-		// this.text = new Kinetic.Text({
-		// 				x: x-8,
-		// 				y: y-5,
-		// 				text: this.odometer,
-		// 				fontSize: 20,
-		// 				fontFamily: 'Arial',
-		// 				fill: 'white',
-		// 				visible: false
-		// });
 	}
 
 	var div_width = $("#display-wrapper").width();
@@ -40,8 +31,6 @@ $(document).ready( function() {
 
 	var shape_layer = new Kinetic.Layer();
 	var path_layer = new Kinetic.Layer();
-	// var particle_layer = new Kinetic.Layer();
-	// var text_layer = new Kinetic.Layer();
 
 	var xCoor = stage.getWidth()/2;
 	var yCoor = 80;
@@ -137,6 +126,11 @@ $(document).ready( function() {
 		toggleSign(this.ptr3);
 	}
 
+	function getNextDirection(obj) {
+		var ptr = obj.ptr3;
+		return (ptr.charge == 'positive') ? -1 : 1;
+	}
+
 	function contLine(obj, direction) {
 		var line = obj.line;
 		var arr = line.getPoints();
@@ -145,31 +139,47 @@ $(document).ready( function() {
 		var newX;
 		var newY;
 		if (obj.type == 'straight') {
+			//next -> draw a angled
+			if ( direction == -1 ) {
+				//if left
+				var i = obj.ptr1.i;
+				var j = obj.ptr1.j;
+				obj.ptr2 = shape_list[i+1][j];
+				toggleSign(obj.ptr2);
+			}
+			else if ( direction == 1 ) {
+				//if right
+				var i = obj.ptr3.i;
+				var j = obj.ptr3.j;
+				var temp = shape_list[i][j+1];
+				obj.ptr1 = obj.ptr2;
+				obj.ptr2 = obj.ptr3;
+				obj.ptr3 = temp;
+				toggleSign(temp);
+			}
 			newX = (direction * 70) + lastX;
 			newY = lastY + 40;
 			obj.type = 'angled';
-			
 		}
 		else if (obj.type == 'angled') {
-			//if ( direction == -1 ) {
-				//if left
-				// var i = obj.ptr3.i;
-				// var j = obj.ptr3.j;
-				// obj.ptr2 = shape_list[i][j-1];
-				// toggleSign(obj.ptr1);
-				// toggleSign(obj.ptr2);
-				// toggleSign(obj.ptr3);
-			//}
-			//else ( direction == 1 ) {
-			// 	//if left
-			// 	var i = obj.ptr2.i;
-			// 	var j = obj.ptr2.j;
-			// 	var temp = shape_list[i+1][i+1];
-
-			// 	toggleSign(obj.ptr1);
-			// 	toggleSign(obj.ptr2);
-			// 	toggleSign(obj.ptr3);
-			//}
+			if ( shape_list[obj.ptr3.i+1] == undefined ) {
+				//if end of stage
+				newX = lastX;
+				newY = yInt * direction;
+				obj.type = 'done';
+				arr.push( ({x: newX, y: newY}) );
+				obj.line.setPoints(arr);
+				path_layer.draw();
+				return;
+			}
+			//next -> draw a straight
+			var i = obj.ptr3.i;
+			var j = obj.ptr3.j;
+			var temp = shape_list[i+1][j];
+			obj.ptr1 = obj.ptr2;
+			obj.ptr2 = obj.ptr3;
+			obj.ptr3 = temp;
+			toggleSign(temp);
 			newX = lastX;
 			newY = yInt * direction;
 			obj.type = 'straight';
@@ -183,30 +193,14 @@ $(document).ready( function() {
 		path_layer.draw();
 	}
 
-	//test
-	// var linePtr = new Line_Obj(array);
-	// path_layer.add(linePtr.line);
-	// path_layer.draw();
-	// contLine(linePtr, 1);
-	// contLine(linePtr, 2);
-	// contLine(linePtr, -1);
-	// contLine(linePtr, 3);
-	// contLine(linePtr, 1);
-	// contLine(linePtr, 4);
-	// contLine(linePtr, -1);
-	// contLine(linePtr, 5);
-
 	var linePtr = null;
-	var test = -1;
 	var count = 1;
-	var flip = false;
 	$("#testing2").on("click", function() {
 		if ( linePtr == null ) {
 			linePtr = new Line_Obj();
 			path_layer.add(linePtr.line);
 			path_layer.draw();
 			count = count+1;
-			//flip = true;
 			return;
 		}
 		if ( count == 6 ) {
@@ -214,17 +208,11 @@ $(document).ready( function() {
 			path_layer.draw();
 			linePtr = null;
 			count = 1;
-			test = test * -1;
 			return;
 		}
-		// if ( flip ) {
-		// 	toggleSign(linePtr.tar);
-		// 	flip = false;
-		// 	return;
-		// }
-
 		if ( linePtr.type == 'straight') {
-			contLine(linePtr, test);
+			var nextDir = getNextDirection(linePtr);
+			contLine(linePtr, nextDir);
 		}
 		else if ( linePtr.type == 'angled' ) {
 			contLine(linePtr, count);
@@ -233,7 +221,6 @@ $(document).ready( function() {
 		else {
 			alert("Error inside MoveParticle Function");
 		}
-
 		path_layer.draw();
 	});
 
