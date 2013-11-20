@@ -317,23 +317,7 @@ $(document).ready( function() {
 		text_layer.draw();
 	}
 
-	$("#testing").on("click", function() {
-		if (arrow1.getVisible()) {
-			arrow1.hide();
-			arrow2.hide();
-			arrow3.show();
-			arrow4.show();
-		}
-		else {
-			arrow1.show();
-			arrow2.show();
-			arrow3.hide();
-			arrow4.hide();
-		}
-		arrows_layer.draw();
-	});
-
-	$("#testing2").on("click", function() {
+	$("#movepart").on("click", function() {
 		if (parPos == null ) {
 			clearPath();
 			moveParticle();
@@ -393,6 +377,5 @@ $(document).ready( function() {
 				arw = null;
 			}
     });
-
 
 });

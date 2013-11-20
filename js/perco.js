@@ -86,11 +86,14 @@ $(document).ready( function() {
 		shape_layer.add(shape_list[i][j].shape);
 		if ( j == 0 ) {
 			shape_list[i][j].border = true;
+			shape_list[i][j].shape.setStrokeWidth(6);
 		}
 		else if (j == i+1) {
 			toggleSign(shape_list[i][j]);
 			shape_list[i][j].border = true;
+			shape_list[i][j].shape.setStrokeWidth(6);
 		}
+		shape_layer.draw();
 	}
 
 	function toggleSign(obj) {
@@ -121,9 +124,11 @@ $(document).ready( function() {
 		this.ptr1 = shape_list[0][0];
 		this.ptr2 = shape_list[0][1];
 		this.ptr3 = shape_list[1][1];
-		toggleSign(this.ptr1);
-		toggleSign(this.ptr2);
-		toggleSign(this.ptr3);
+		// toggleSign(this.ptr1);
+		// toggleSign(this.ptr2);
+		//toggleSign(this.ptr3);
+		this.toFlip = new Array();
+		this.toFlip.push(this.ptr3);
 	}
 
 	function getNextDirection(obj) {
@@ -145,7 +150,8 @@ $(document).ready( function() {
 				var i = obj.ptr1.i;
 				var j = obj.ptr1.j;
 				obj.ptr2 = shape_list[i+1][j];
-				toggleSign(obj.ptr2);
+				//toggleSign(obj.ptr2);
+				obj.toFlip.push(obj.ptr2);
 			}
 			else if ( direction == 1 ) {
 				//if right
@@ -155,7 +161,8 @@ $(document).ready( function() {
 				obj.ptr1 = obj.ptr2;
 				obj.ptr2 = obj.ptr3;
 				obj.ptr3 = temp;
-				toggleSign(temp);
+				//toggleSign(temp);
+				obj.toFlip.push(temp);
 			}
 			newX = (direction * 70) + lastX;
 			newY = lastY + 40;
@@ -179,7 +186,8 @@ $(document).ready( function() {
 			obj.ptr1 = obj.ptr2;
 			obj.ptr2 = obj.ptr3;
 			obj.ptr3 = temp;
-			toggleSign(temp);
+			//toggleSign(temp);
+			obj.toFlip.push(temp);
 			newX = lastX;
 			newY = yInt * direction;
 			obj.type = 'straight';
@@ -195,7 +203,10 @@ $(document).ready( function() {
 
 	var linePtr = null;
 	var count = 1;
-	$("#testing2").on("click", function() {
+	var btnNext = "flip";
+	var btnClicks = 0;
+	var stageSwitch = 1;
+	function runButton() {
 		if ( linePtr == null ) {
 			linePtr = new Line_Obj();
 			path_layer.add(linePtr.line);
@@ -208,24 +219,70 @@ $(document).ready( function() {
 			path_layer.draw();
 			linePtr = null;
 			count = 1;
+			btnClicks = 0;
+			return;
+		}
+		if ( btnNext == 'flip' ) {
+			var temp = linePtr.toFlip;
+			for ( var i=0; i<temp.length; i++ ) {
+					toggleSign(temp[i]);
+				}
+			btnNext = 'move';
+			temp.length = 0;
 			return;
 		}
 		if ( linePtr.type == 'straight') {
-			var nextDir = getNextDirection(linePtr);
-			contLine(linePtr, nextDir);
+			if ( btnNext == 'move' ) {
+				var nextDir = getNextDirection(linePtr);
+				contLine(linePtr, nextDir);
+				btnNext = 'flip';
+			}
+			else {
+				alert("Error inside Move Particle: Error 1");
+			}
 		}
 		else if ( linePtr.type == 'angled' ) {
-			contLine(linePtr, count);
-			count = count+1;
+			if ( btnNext == 'move' ) {
+				contLine(linePtr, count, btnNext);
+				count = count+1;
+				btnNext = 'flip';
+			}
+			else {
+				alert("Error inside Move Particle: Error 2");
+			}
 		}
 		else {
-			alert("Error inside MoveParticle Function");
+			alert("Error inside Move Particle: Error 3");
 		}
 		path_layer.draw();
+	}
+
+	$("#movepart").on("click", function() {
+		stageSwitch = 1;
+		btnClicks = btnClicks+1;
+		runButton();
 	});
 
 	$("#reset_btn").on("click", function() {
         $(this).unbind("click");
         window.location.reload();
+    });
+
+    $("#stage").on("click", function() {
+    	if ( stageSwitch == 1 ) {
+    		while ( btnClicks < 17 ) {
+	    		runButton();
+	    		btnClicks = btnClicks+1;
+	    	}
+	    	btnClicks = 0;
+	    	stageSwitch = 0;
+    	}
+    	else if ( stageSwitch == 0 ) {
+    		runButton();
+    		stageSwitch = 1;
+    	}
+    	else {
+    		alert('Error with Stage Button');
+    	}
     });
 });
