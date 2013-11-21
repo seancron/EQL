@@ -105,7 +105,7 @@ $(document).ready( function() {
 			}
 			else {
 				obj.charge = 'positive';
-				shape.setFill('blue');
+				shape.setFill('#0033FF');
 			}
 			shape_layer.draw();
 		}
@@ -124,9 +124,6 @@ $(document).ready( function() {
 		this.ptr1 = shape_list[0][0];
 		this.ptr2 = shape_list[0][1];
 		this.ptr3 = shape_list[1][1];
-		// toggleSign(this.ptr1);
-		// toggleSign(this.ptr2);
-		//toggleSign(this.ptr3);
 		this.toFlip = new Array();
 		this.toFlip.push(this.ptr3);
 	}
@@ -150,7 +147,6 @@ $(document).ready( function() {
 				var i = obj.ptr1.i;
 				var j = obj.ptr1.j;
 				obj.ptr2 = shape_list[i+1][j];
-				//toggleSign(obj.ptr2);
 				obj.toFlip.push(obj.ptr2);
 			}
 			else if ( direction == 1 ) {
@@ -161,7 +157,6 @@ $(document).ready( function() {
 				obj.ptr1 = obj.ptr2;
 				obj.ptr2 = obj.ptr3;
 				obj.ptr3 = temp;
-				//toggleSign(temp);
 				obj.toFlip.push(temp);
 			}
 			newX = (direction * 70) + lastX;
@@ -186,7 +181,6 @@ $(document).ready( function() {
 			obj.ptr1 = obj.ptr2;
 			obj.ptr2 = obj.ptr3;
 			obj.ptr3 = temp;
-			//toggleSign(temp);
 			obj.toFlip.push(temp);
 			newX = lastX;
 			newY = yInt * direction;
@@ -283,6 +277,34 @@ $(document).ready( function() {
     	}
     	else {
     		alert('Error with Stage Button');
+    	}
+    });
+
+    var autoCount = 0;
+    var autoId;
+   	var autoTest = function() {
+    	if ( autoCount <= 2000 ) {
+    		autoCount++;
+    		runButton();
+    	}
+    	else {
+    		clearInterval(autoTest);
+    	}
+    }
+
+    $("#auto").on("click", function() {
+    	var btnName = $(this).text();
+    	if ( btnName == 'Auto Pilot') {
+    		autoId = setInterval(autoTest, 500);
+    		$(this).text('Stop...');
+    	}
+    	else if ( btnName == 'Stop...') {
+    		clearInterval(autoId);
+    		$(this).text('Auto Pilot');
+    		autoCount = 0;
+    	}
+    	else {
+    		alert('Error with Auto Pilot Button');
     	}
     });
 });
