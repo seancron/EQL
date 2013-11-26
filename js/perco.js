@@ -105,7 +105,7 @@ $(document).ready( function() {
 			}
 			else {
 				obj.charge = 'positive';
-				shape.setFill('#0033FF');
+				shape.setFill('#3333FF');
 			}
 			shape_layer.draw();
 		}
@@ -295,7 +295,7 @@ $(document).ready( function() {
     $("#auto").on("click", function() {
     	var btnName = $(this).text();
     	if ( btnName == 'Auto Pilot') {
-    		autoId = setInterval(autoTest, 500);
+    		autoId = setInterval(autoTest, 350);
     		$(this).text('Stop...');
     	}
     	else if ( btnName == 'Stop...') {
