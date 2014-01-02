@@ -205,6 +205,8 @@ $(document).ready( function() {
 
 	$("#reset_btn").on("click", function() {
         $(this).unbind("click");
+        $("#start").removeAttr("disabled");
+		$("#pause").attr('disabled', 'true');
         window.location.reload();
     });
 
