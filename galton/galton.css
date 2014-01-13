@@ -13,3 +13,20 @@
 	margin: 0px;
 	border: 1px solid black;
 }
+body .modal {
+	/* new custom width */
+    width: 750px;
+    /* must be half of the width, minus scrollbar on the left (30px) */
+    margin-left: -375px;
+    /*http://stackoverflow.com/questions/10169432/how-can-i-change-the-default-width-of-a-twitter-bootstrap-modal-box?rq=1*/
+}
+.modal-header {
+	text-align: center;
+}
+.modal-body {
+	margin: 0px auto;
+	text-align: center;
+}
+#histo {
+	margin: 0px auto;
+}
