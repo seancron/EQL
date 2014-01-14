@@ -352,6 +352,14 @@ $(document).ready( function() {
     				text: 'Number of Marbles at Position'
     			}
     		},
+    		plotOptions: {
+    			column: {
+    				dataLabels: {
+    					enabled: true,
+    					color: 'black'
+    				}
+    			}
+    		},
     		series: [{
     			data: histoData
     		}]
