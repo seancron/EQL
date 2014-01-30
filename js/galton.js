@@ -11,7 +11,7 @@ $(document).ready( function() {
 		this.shape = new Kinetic.Circle({
 						x: x,
 						y: y,
-						radius: 8,
+						radius: 7,
 						fill: 'black',
 						stroke: 'black',
 						strokeWidth: 2
@@ -35,12 +35,13 @@ $(document).ready( function() {
 	var marble_layer = new Kinetic.Layer();
 	var odometer_layer = new Kinetic.Layer();
 	var text_layer = new Kinetic.Layer();
+	var bin_layer = new Kinetic.Layer();
 
 
 	var xCoor = (stage.getWidth()/2);
-	var yCoor = 70;
-	var xInt = 60;
-	var yInt = 65;
+	var yCoor = 65;
+	var xInt = 58;
+	var yInt = 55;
 
 	var pegList = new Array();
 	//TODO: Change to individual ratios
@@ -63,12 +64,30 @@ $(document).ready( function() {
 		peg_layer.draw();
 	}
 
+	function createBins() {
+		var index = pegList.length;
+		var row = pegList[index-2];
+		for ( var i=0; i<row.length; i++) {
+			var x = row[i].shape.getX();
+			var y = row[i].shape.getY();
+			var bin = new Kinetic.Line({
+				points: [x, y, x, y+yInt+7],
+				fill: 'black',
+				stroke: 'black',
+				strokeWidth: 4,
+				lineCap: 'square',
+			});
+			bin_layer.add(bin);
+		}
+		bin_layer.draw();
+	}
+
 	//add first peg (aka base peg)
 	pegList[0] = new Array();
 	addPeg(xCoor, yCoor, 0, 0);
 
 	console.log('*** Debugging Information ***');
-	for (var m=1; m<9; m++) {
+	for (var m=1; m<11; m++) {
 		pegList[m] = new Array();
 		var y = pegList[m-1][0].y;
 		//console.log('m: ' +m);
@@ -90,12 +109,14 @@ $(document).ready( function() {
 		//console.log('Row Added Successfully');
 	}
 	addLastRow();
+	createBins();
 	createGraph();
 
 	stage.add(peg_layer);
+	stage.add(bin_layer);
 
 	//Speed of the simulation (ms)
-	var execSpeed = 120;
+	var execSpeed = 175;
 
 	function Marble(xPos, yPos) {
 		var colorIndex = Math.floor(Math.random()*colorArray.length);
@@ -107,7 +128,7 @@ $(document).ready( function() {
 		this.shape = new Kinetic.Circle({
 						x: this.xPos,
 						y: this.yPos,
-						radius: 25,
+						radius: 22,
 						fill: this.color,
 						stroke: 'black',
 						strokeWidth: 1
@@ -123,13 +144,13 @@ $(document).ready( function() {
 		var tarPeg = (dir == 'left') ? pegList[i+1][j] : pegList[i+1][j+1];
 		var offset = (dir == 'left') ? -1 : 1;
 		var first_pos_x = this.xPos + (25*offset);
-		var first_pos_y = this.yPos + (-10);
+		var first_pos_y = this.yPos + (-5);
 		var second_pos_x = first_pos_x + (10*offset);
 		var second_pos_y = first_pos_y + 10;
 		var third_pos_x = second_pos_x + (15*offset);
 		var third_pos_y = (((tarPeg.y - second_pos_y) / 2) -10 )+second_pos_y;
 		var fourth_pos_x = tarPeg.x;
-		var fourth_pos_y = tarPeg.y-35;
+		var fourth_pos_y = tarPeg.y-31;
 
 		var that = this;
 		setTimeout( function() {
@@ -288,25 +309,25 @@ $(document).ready( function() {
         window.location.reload();
     });
 
-    $("#graph").on("click", function() {
-    	$("#graphModal").modal('show');
-    });
+    // $("#graph").on("click", function() {
+    // 	$("#graphModal").modal('show');
+    // });
 
-    $("#modal-pause").on("click", function() {
-    	if (simId != undefined) {
-    		console.log('***Simulation Paused***');
-			clearInterval(simId);
-			simId = undefined;
-			$("#start").removeAttr("disabled");
-			$("#pause").attr('disabled', 'true');
-    	}
-    	else {
-    		console.log('***Simulation Initiated***');
-			simId = setInterval(runSimulation, (execSpeed/4)+execSpeed);
-			$("#pause").removeAttr("disabled");
-			$("#start").attr('disabled', 'true');
-    	}
-    });
+   //  $("#modal-pause").on("click", function() {
+   //  	if (simId != undefined) {
+   //  		console.log('***Simulation Paused***');
+			// clearInterval(simId);
+			// simId = undefined;
+			// $("#start").removeAttr("disabled");
+			// $("#pause").attr('disabled', 'true');
+   //  	}
+   //  	else {
+   //  		console.log('***Simulation Initiated***');
+			// simId = setInterval(runSimulation, (execSpeed/4)+execSpeed);
+			// $("#pause").removeAttr("disabled");
+			// $("#start").attr('disabled', 'true');
+   //  	}
+   //  });
 
 	function extractData() {
 		var histoData = new Array();
@@ -324,7 +345,7 @@ $(document).ready( function() {
 	}
 
     function createGraph() {
-    	var container =  $("#graphModal div.modal-body");
+    	var container =  $("#graph");
     	var ht = container.height()+(div_height*0.75);
     	container.attr('height', ht);
     	container.append('<div id="histo" style="width:725; height:'+ht+';"></div>');
@@ -366,4 +387,13 @@ $(document).ready( function() {
     	});
     }
 
+    /***********************************************************************************************************************/
+    /*													Propability Functions											   */
+
+    var polya = 0;
+    var conway = [ 0.6, 0.7, 0.3, 0.8, 0.5, 0.3, 0.8, 0.6, 0.4, 0.2, 0.9, 0.7, 
+    				0.5, 0.3, 0.2, 0.9, 0.7, 0.6, 0.4, 0.3, 0.1, 0.9, 0.8, 0.7,
+    				0.4, 0.4, 0.3, 0.1, 0.9, 0.8, 0.8, 0.4, 0.4, 0.4, 0.2, 0.1, 
+    				0.9, 0.7, 0.9, 0.5, 0.4, 0.5, 0.3, 0.2, 0.1, 1, 0.7, 0.8, 1,
+    				0, 0.6, 0.4, 0.3, 0.2, 0.1 ];
 });
