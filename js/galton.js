@@ -1,7 +1,20 @@
+//galton.js - Galton Board Simulation with Programmable Pin Probabilities
+//Created by Jared Perreault
+
+//TODO - Last Updated 2/3/2014:
+//Change color of bin ball to that of most recent ball [Done - 2/3/2014]
+//Fix 'floating ball' bug within the bins [Temp Fix - haven't found absolute cause]
+//Add lines to distinguish bins [Done - 1/23/2014]
+//Add 'residual' lines of the paths of the balls
+//Add a 'View Probabilities' button [Done - 2/5/2014]
+
+
 $(document).ready( function() {
 	$("#start").removeAttr("disabled");
 	$("#pause").attr('disabled', 'true');
 	$("#modal-pause").removeAttr("disabled");
+
+/**************************************** Peg and 'Board' Setup Functions *************************************************/
 
 	function Peg(x, y, i, j, ratio) {
 		this.x = x;
@@ -17,6 +30,11 @@ $(document).ready( function() {
 						strokeWidth: 2
 		});
 		this.ratio = ratio;
+		this.tooltip = new Kinetic.Label({
+						x: x,
+						y: y+10
+		});
+		this.tooltipCreated = false;
 	}
 
 	var colorArray = ['green', 'red', 'blue', 'seagreen', 'purple', 'steelblue', 'navy', 'indigo', 
@@ -32,6 +50,7 @@ $(document).ready( function() {
 
 	var pegList = new Array();
 	var peg_layer = new Kinetic.Layer();
+	var tooltip_layer = new Kinetic.Layer();
 	var marble_layer = new Kinetic.Layer();
 	var odometer_layer = new Kinetic.Layer();
 	var text_layer = new Kinetic.Layer();
@@ -43,6 +62,13 @@ $(document).ready( function() {
 	var xInt = 58;
 	var yInt = 55;
 
+	//Array(s) of Probability disturbutions
+	var conway = [ 0.6, 0.7, 0.3, 0.8, 0.5, 0.3, 0.8, 0.6, 0.4, 0.2, 0.9, 0.7, 
+    				0.5, 0.3, 0.2, 0.9, 0.7, 0.6, 0.4, 0.3, 0.1, 0.9, 0.8, 0.7,
+    				0.4, 0.4, 0.3, 0.1, 0.9, 0.8, 0.8, 0.4, 0.4, 0.4, 0.2, 0.1, 
+    				0.9, 0.7, 0.9, 0.5, 0.4, 0.5, 0.3, 0.2, 0.1, 1.0, 0.7, 0.8, 
+    				1.0, 0.0, 0.6, 0.4, 0.3, 0.2, 0.1 ];
+
 	var pegList = new Array();
 	//TODO: Change to individual ratios
 	var ratio = .5; //ratio will be a percentage of leftward movement
@@ -50,6 +76,7 @@ $(document).ready( function() {
 	function addPeg(x, y, i, j) {
 		pegList[i][j] = new Peg(x, y, i, j, ratio);
 		peg_layer.add(pegList[i][j].shape);
+		tooltip_layer.add(pegList[i][j].tooltip);
 	}
 
 	function addLastRow() {
@@ -110,13 +137,17 @@ $(document).ready( function() {
 	}
 	addLastRow();
 	createBins();
+	assignPinProb(conway);
 	createGraph();
 
 	stage.add(peg_layer);
 	stage.add(bin_layer);
+	stage.add(tooltip_layer);
+
+/****************************************************** Marble and Simulation Functions **************************************************/
 
 	//Speed of the simulation (ms)
-	var execSpeed = 175;
+	var execSpeed = 250;
 
 	function Marble(xPos, yPos) {
 		var colorIndex = Math.floor(Math.random()*colorArray.length);
@@ -237,7 +268,7 @@ $(document).ready( function() {
 				lastPeg.odometer++;
 				lastPeg.odoMarble = currMar.shape.clone();
 				lastPeg.odoMarble.moveTo(odometer_layer);
-				lastPeg.odoMarble.move(0, 20)
+				lastPeg.odoMarble.move(0, 20);
 				lastPeg.odoText = new Kinetic.Text({
 								x: lastPeg.x-5,
 								y: lastPeg.y-15,
@@ -269,6 +300,8 @@ $(document).ready( function() {
 			}
 			else if (lastPeg.odometer > 0) {
 				console.log('***Incrementing Odormeter Function***');
+				if ( lastPeg.odoMarble.getY() != 604 ) {lastPeg.odoMarble.setY(604);} //an attempt to solve the floating bug
+				lastPeg.odoMarble.setFill(currMar.shape.getFill());
 				lastPeg.odometer++;
 				lastPeg.odoText.setText(lastPeg.odometer);
 				lastPeg.odoText.setX( lastPeg.odoMarble.getX() - lastPeg.odoText.getWidth()/2 );
@@ -287,47 +320,7 @@ $(document).ready( function() {
 		}
 	}
 
-	$('#start').on('click', function() {
-		console.log('***Simulation Initiated***');
-		simId = setInterval(runSimulation, (execSpeed/4)+execSpeed);
-		$("#pause").removeAttr("disabled");
-		$(this).attr('disabled', 'true');
-	});
-
-	$('#pause').on('click', function() {
-		console.log('***Simulation Paused***');
-		clearInterval(simId);
-		simId = undefined;
-		$("#start").removeAttr("disabled");
-		$(this).attr('disabled', 'true');
-	});
-
-	$("#reset_btn").on("click", function() {
-        $(this).unbind("click");
-        $("#start").removeAttr("disabled");
-		$("#pause").attr('disabled', 'true');
-        window.location.reload();
-    });
-
-    // $("#graph").on("click", function() {
-    // 	$("#graphModal").modal('show');
-    // });
-
-   //  $("#modal-pause").on("click", function() {
-   //  	if (simId != undefined) {
-   //  		console.log('***Simulation Paused***');
-			// clearInterval(simId);
-			// simId = undefined;
-			// $("#start").removeAttr("disabled");
-			// $("#pause").attr('disabled', 'true');
-   //  	}
-   //  	else {
-   //  		console.log('***Simulation Initiated***');
-			// simId = setInterval(runSimulation, (execSpeed/4)+execSpeed);
-			// $("#pause").removeAttr("disabled");
-			// $("#start").attr('disabled', 'true');
-   //  	}
-   //  });
+/***************************************************** Graph Functions *******************************************************************/
 
 	function extractData() {
 		var histoData = new Array();
@@ -388,12 +381,101 @@ $(document).ready( function() {
     }
 
     /***********************************************************************************************************************/
-    /*													Propability Functions											   */
+    /*													Proppability Functions											   */
 
-    var polya = 0;
-    var conway = [ 0.6, 0.7, 0.3, 0.8, 0.5, 0.3, 0.8, 0.6, 0.4, 0.2, 0.9, 0.7, 
-    				0.5, 0.3, 0.2, 0.9, 0.7, 0.6, 0.4, 0.3, 0.1, 0.9, 0.8, 0.7,
-    				0.4, 0.4, 0.3, 0.1, 0.9, 0.8, 0.8, 0.4, 0.4, 0.4, 0.2, 0.1, 
-    				0.9, 0.7, 0.9, 0.5, 0.4, 0.5, 0.3, 0.2, 0.1, 1, 0.7, 0.8, 1,
-    				0, 0.6, 0.4, 0.3, 0.2, 0.1 ];
-});
+    function assignPinProb( probArray_ ) {
+    	var count = 0;
+    	var probArray = probArray_;
+    	$.each(pegList, function( index1, arr ) {
+    		$.each(arr, function( index2, peg) {
+    			if ( index1 < pegList.length-1) {
+					peg.ratio = probArray[count];
+	    			count++;
+	    			peg.shape.on('mouseenter', function(e) {
+	    				if ( !peg.tooltipCreated ) {
+		    				peg.tooltip.add(new Kinetic.Tag( {
+		    						fill: 'black',
+		    						pointerDirection: 'up',
+		    						pointerWidth: 10,
+		    						pointerHeight: 4,
+		    						lineJoin: 'round',
+		    						cornerRadius: 50
+		    				}));
+		    				peg.tooltip.add(new Kinetic.Text( {
+		    						text: peg.ratio,
+		    						fontFamily: 'Arial',
+		    						fontSize: 22,
+		    						padding: 5,
+		    						fill: 'white',
+		    						cornerRadius: 50
+		    				}));
+		    				peg.tooltipCreated = true;
+    					}
+    					else if ( peg.tooltipCreated ) {
+    						peg.tooltip.show();
+    					}
+	    				tooltip_layer.draw();
+	    			});
+	    			peg.shape.on('mouseleave', function(e) {
+	    				peg.tooltip.hide();
+	    				tooltip_layer.draw();
+	    			});
+    			}
+    		});
+    	});
+    }
+
+    var tooltip_status = false; //false = off (or individual), true = on
+    function toggleAllTooltips() {
+    	$.each(pegList, function( index1, arr ) {
+    		$.each(arr, function( index2, peg ) {
+
+    			//if the tooltips are not being shown, turn them on
+    			if (!tooltip_status) {
+    				peg.shape.fire('mouseenter');
+    			}
+    			//if the tooltips are being shown, turn them off
+    			else if (tooltip_status) {
+    				peg.shape.fire('mouseleave');
+    			}
+    			//else - Error
+    			else {
+    				console.log('Error with toggleAllTooltips');
+    				alert('Error with toggling tooltips - tooltip_status reached unknown state');
+    			}
+
+    		});
+    	});
+    	tooltip_status = (!tooltip_status) ? true : false;
+    }
+
+/******************************************************* Button and UI Functions ******************************************************/
+
+	$('#start').on('click', function() {
+		console.log('***Simulation Initiated***');
+		simId = setInterval(runSimulation, (execSpeed/4)+execSpeed);
+		$("#pause").removeAttr("disabled");
+		$(this).attr('disabled', 'true');
+	});
+
+	$('#pause').on('click', function() {
+		console.log('***Simulation Paused***');
+		clearInterval(simId);
+		simId = undefined;
+		$("#start").removeAttr("disabled");
+		$(this).attr('disabled', 'true');
+	});
+
+	$("#reset_btn").on("click", function() {
+        $(this).unbind("click");
+        $("#start").removeAttr("disabled");
+		$("#pause").attr('disabled', 'true');
+        window.location.reload();
+    });
+
+    $("#tooltip_btn").on("click", function() {
+    	toggleAllTooltips();
+    });
+
+
+}); // End of jQuery doc.ready()
