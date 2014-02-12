@@ -1,12 +1,16 @@
 //galton.js - Galton Board Simulation with Programmable Pin Probabilities
 //Created by Jared Perreault
 
-//TODO - Last Updated 2/3/2014:
+//TODO - Last Updated 2/12/2014:
 //Change color of bin ball to that of most recent ball [Done - 2/3/2014]
 //Fix 'floating ball' bug within the bins [Temp Fix - haven't found absolute cause]
 //Add lines to distinguish bins [Done - 1/23/2014]
 //Add 'residual' lines of the paths of the balls
 //Add a 'View Probabilities' button [Done - 2/5/2014]
+//Change marble color selection to non-random [Done - 2/12/2014]
+//Swap z-index of Current Marble and Bin Marble [Done - 2/12/2014]
+//Space Graph to approx. lined up with bins [Done - 2/12/2014]
+//Remove x-axis labels [Done - 2/12/2014]
 
 
 $(document).ready( function() {
@@ -55,6 +59,7 @@ $(document).ready( function() {
 	var odometer_layer = new Kinetic.Layer();
 	var text_layer = new Kinetic.Layer();
 	var bin_layer = new Kinetic.Layer();
+	var residual_layer = new Kinetic.Layer();
 
 
 	var xCoor = (stage.getWidth()/2);
@@ -70,6 +75,8 @@ $(document).ready( function() {
     				1.0, 0.0, 0.6, 0.4, 0.3, 0.2, 0.1 ];
 
 	var pegList = new Array();
+	var resList = new Array();
+	var resline_bool = false;
 	//TODO: Change to individual ratios
 	var ratio = .5; //ratio will be a percentage of leftward movement
 
@@ -144,13 +151,56 @@ $(document).ready( function() {
 	stage.add(bin_layer);
 	stage.add(tooltip_layer);
 
+/********************************************************* Residual Line Functions *******************************************************/
+
+	function ResidualLine(color) {
+		this.color = color;
+		this.line = new Kinetic.Line({
+						points: [xCoor, yCoor],
+						stroke: color,
+						strokeWidth: 5,
+						lineCap: 'round',
+						lineJoin: 'round',
+						opacity: 1,
+						tension: 0.3
+		});
+	}
+
+	ResidualLine.prototype.addPoint = function(xPoint, yPoint) {
+		if (resline_bool) {
+			var arr = this.line.getPoints();
+			arr.push( ({x: xPoint, y: yPoint}) );
+			this.line.setPoints(arr);
+			residual_layer.draw();
+		}
+	}
+
+	ResidualLine.prototype.destroy = function() {
+		this.line.destroy();
+		delete this;
+	}
+
+	var ResLine_Max = 3;
+	function updateResList(newline) {
+		resList.push(newline);
+		if (resList.length > ResLine_Max ) {
+			var del = resList.shift();
+			del.destroy();
+		}
+		for (var i=0; i<resList.length; i++) {
+			var temp = resList[i];
+			temp.line.opacity = temp.line.opacity/3;
+		}
+	}
+
 /****************************************************** Marble and Simulation Functions **************************************************/
 
 	//Speed of the simulation (ms)
 	var execSpeed = 250;
+	var colorIndex = 0;
 
 	function Marble(xPos, yPos) {
-		var colorIndex = Math.floor(Math.random()*colorArray.length);
+		colorIndex = (colorIndex < 17) ? colorIndex+1 : 0;
 
 		this.xPos = xPos;
 		this.yPos = yPos;
@@ -164,9 +214,11 @@ $(document).ready( function() {
 						stroke: 'black',
 						strokeWidth: 1
 		});
+		this.resline = new ResidualLine(this.color);
 	}
 
 	Marble.prototype.move = function() {
+		residual_layer.add(this.resline.line);
 		//console.log('***Initiate Move Sequence***');
 		var i = this.currPeg.i;
 		var j = this.currPeg.j;
@@ -177,7 +229,7 @@ $(document).ready( function() {
 		var first_pos_x = this.xPos + (25*offset);
 		var first_pos_y = this.yPos + (-5);
 		var second_pos_x = first_pos_x + (10*offset);
-		var second_pos_y = first_pos_y + 10;
+		var second_pos_y = first_pos_y + 5;
 		var third_pos_x = second_pos_x + (15*offset);
 		var third_pos_y = (((tarPeg.y - second_pos_y) / 2) -10 )+second_pos_y;
 		var fourth_pos_x = tarPeg.x;
@@ -192,6 +244,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', first_pos_x);
 			that.shape.setAttr('y', first_pos_y);
 			marble_layer.draw();
+			that.resline.addPoint(first_pos_x, first_pos_y);
 			//console.log('First Position Reached');
 		}, (execSpeed/4)*1 );
 
@@ -201,6 +254,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', second_pos_x);
 			that.shape.setAttr('y', second_pos_y);
 			marble_layer.draw();
+			that.resline.addPoint(second_pos_x, second_pos_y);
 			//console.log('Second Position Reached');
 		}, (execSpeed/4)*2 );
 
@@ -210,6 +264,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', third_pos_x);
 			that.shape.setAttr('y', third_pos_y);
 			marble_layer.draw();
+			that.resline.addPoint(third_pos_x, third_pos_y);
 			//console.log('Third Position Reached');
 		}, (execSpeed/4)*3 );
 
@@ -219,6 +274,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', fourth_pos_x);
 			that.shape.setAttr('y', fourth_pos_y);
 			marble_layer.draw();
+			that.resline.addPoint(fourth_pos_x, fourth_pos_y);
 			//console.log('Fourth Position Reached');
 		}, (execSpeed/4)*4 );
 
@@ -247,8 +303,9 @@ $(document).ready( function() {
 	var currMar = new Marble(xCoor, yCoor-35);
 	marble_layer.add(currMar.shape);
 
-	stage.add(marble_layer);
 	stage.add(odometer_layer);
+	stage.add(residual_layer);
+	stage.add(marble_layer);
 	stage.add(text_layer);
 
 	var simId;
@@ -257,14 +314,15 @@ $(document).ready( function() {
 			currMar.move();
 		}
 		else {
-			console.log('***End Reached***');
+			//console.log('***End Reached***');
+
 			var lastPeg = currMar.currPeg
-			console.log('lastPeg.odometer: ' +lastPeg.odometer);
+			//console.log('lastPeg.odometer: ' +lastPeg.odometer);
 			if (lastPeg.odometer == undefined ) {
 				alert('Error with odometer function');
 			}
 			else if (lastPeg.odometer == 0 ) {
-				console.log('***Setting Odometer Function***');
+				//console.log('***Setting Odometer Function***');
 				lastPeg.odometer++;
 				lastPeg.odoMarble = currMar.shape.clone();
 				lastPeg.odoMarble.moveTo(odometer_layer);
@@ -299,7 +357,7 @@ $(document).ready( function() {
 				text_layer.add(lastPeg.odoText);
 			}
 			else if (lastPeg.odometer > 0) {
-				console.log('***Incrementing Odormeter Function***');
+				//console.log('***Incrementing Odormeter Function***');
 				if ( lastPeg.odoMarble.getY() != 604 ) {lastPeg.odoMarble.setY(604);} //an attempt to solve the floating bug
 				lastPeg.odoMarble.setFill(currMar.shape.getFill());
 				lastPeg.odometer++;
@@ -333,21 +391,18 @@ $(document).ready( function() {
 	}
 
 	function updateGraph(index, value) {
-		var graph = $("#histo").highcharts();
+		var graph = $("#graph").highcharts();
 		graph.series[0].data[index].update(value);
 	}
 
     function createGraph() {
-    	var container =  $("#graph");
-    	var ht = container.height()+(div_height*0.75);
-    	container.attr('height', ht);
-    	container.append('<div id="histo" style="width:725; height:'+ht+';"></div>');
-    	var histo = container.find("#histo");
+    	var histo =  $("#graph");
     	var histoData = extractData();
     	histo.highcharts({
     		chart: {
     			type: 'column',
-    			width: 700
+    			width: div_width+120,
+    			height: 400
     		},
     		title: {
     			text: 'Simulation Results'
@@ -356,14 +411,17 @@ $(document).ready( function() {
     			enabled: false
     		},
     		xAxis: {
-    			categories: ['Position 1', 'Position 2', 'Position 3', 'Position 4', 'Position 5',
-    				'Position 6', 'Position 7', 'Position 8', 'Position 9']
+    			//categories: ['Position 1', 'Position 2', 'Position 3', 'Position 4', 'Position 5',
+    			//	'Position 6', 'Position 7', 'Position 8', 'Position 9']
+    			labels: {
+    				enabled: false
+    			}
     		},
     		yAxis: {
     			min: 0,
     			allowDecimals: false,
     			title: {
-    				text: 'Number of Marbles at Position'
+    				text: 'Number of Marbles in Each Bin'
     			}
     		},
     		plotOptions: {
@@ -375,6 +433,7 @@ $(document).ready( function() {
     			}
     		},
     		series: [{
+    			name: 'Simulation Results',
     			data: histoData
     		}]
     	});
@@ -475,6 +534,10 @@ $(document).ready( function() {
 
     $("#tooltip_btn").on("click", function() {
     	toggleAllTooltips();
+    });
+
+    $("#resline_toggle").on("click", function() {
+    	resline_bool = !(resline_bool);
     });
 
 
