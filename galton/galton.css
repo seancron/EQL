@@ -15,9 +15,10 @@
 }
 body .modal {
 	/* new custom width */
-    width: 750px;
+    width: 1100px;
+    height: 550px;
     /* must be half of the width, minus scrollbar on the left (30px) */
-    margin-left: -375px;
+    margin-left: -550px;
     /*http://stackoverflow.com/questions/10169432/how-can-i-change-the-default-width-of-a-twitter-bootstrap-modal-box?rq=1*/
 }
 .modal-header {
@@ -37,4 +38,10 @@ body .modal {
 	margin-left: -70px;
 	text-align: center;
 	padding-bottom: 15px;
+}
+#conway-animation {
+	width: 1050px;
+	height: 405px;
+	margin-left: 8px;
+	border: 1px red solid;
 }

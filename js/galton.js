@@ -7,11 +7,16 @@
 //Add lines to distinguish bins [Done - 1/23/2014]
 //Add 'residual' lines of the paths of the balls
 //Add a 'View Probabilities' button [Done - 2/5/2014]
+
 //Change marble color selection to non-random [Done - 2/12/2014]
 //Swap z-index of Current Marble and Bin Marble [Done - 2/12/2014]
 //Space Graph to approx. lined up with bins [Done - 2/12/2014]
 //Remove x-axis labels [Done - 2/12/2014]
 
+//Enlarge numbers above bar graph
+//Solve clear balls issue
+//John Conway animations
+//Change the residual balls to diagonals (joints at the pegs and above the pegs)
 
 $(document).ready( function() {
 	$("#start").removeAttr("disabled");
@@ -41,8 +46,8 @@ $(document).ready( function() {
 		this.tooltipCreated = false;
 	}
 
-	var colorArray = ['green', 'red', 'blue', 'seagreen', 'purple', 'steelblue', 'navy', 'indigo', 
-						'limegreen', 'aqua', 'maroon', 'olive', 'pink', 'royalblue', 'yellow', 'teal', 'orange'];
+	var colorArray = ['green', 'red', 'blue', 'purple', 'seagreen', 'steelblue', 'navy', 'maroon', 
+						'limegreen', 'aqua', 'indigo', 'olive', 'pink', 'royalblue', 'yellow', 'teal', 'orange'];
 
 	var div_width = $("#display-wrapper").width();
 	var div_height = $("#display-wrapper").height();
@@ -52,7 +57,6 @@ $(document).ready( function() {
 		height: div_height
 	});
 
-	var pegList = new Array();
 	var peg_layer = new Kinetic.Layer();
 	var tooltip_layer = new Kinetic.Layer();
 	var marble_layer = new Kinetic.Layer();
@@ -76,7 +80,7 @@ $(document).ready( function() {
 
 	var pegList = new Array();
 	var resList = new Array();
-	var resline_bool = false;
+	var resline_bool = true;
 	//TODO: Change to individual ratios
 	var ratio = .5; //ratio will be a percentage of leftward movement
 
@@ -158,12 +162,13 @@ $(document).ready( function() {
 		this.line = new Kinetic.Line({
 						points: [xCoor, yCoor],
 						stroke: color,
-						strokeWidth: 5,
+						strokeWidth: 8,
 						lineCap: 'round',
 						lineJoin: 'round',
 						opacity: 1,
 						tension: 0.3
 		});
+		this.opacity = 1;
 	}
 
 	ResidualLine.prototype.addPoint = function(xPoint, yPoint) {
@@ -182,25 +187,29 @@ $(document).ready( function() {
 
 	var ResLine_Max = 3;
 	function updateResList(newline) {
-		resList.push(newline);
+		console.log(resList);
 		if (resList.length > ResLine_Max ) {
 			var del = resList.shift();
 			del.destroy();
 		}
 		for (var i=0; i<resList.length; i++) {
 			var temp = resList[i];
-			temp.line.opacity = temp.line.opacity/3;
+			//temp.line.opacity(temp.opacity/3);
+			temp.opacity = temp.opacity/3;
+			temp.line.opacity = temp.opacity;
 		}
+		residual_layer.draw();
 	}
 
 /****************************************************** Marble and Simulation Functions **************************************************/
 
 	//Speed of the simulation (ms)
 	var execSpeed = 250;
-	var colorIndex = 0;
+	var colorIndex = -1;
+	var currResLine = null;
 
 	function Marble(xPos, yPos) {
-		colorIndex = (colorIndex < 17) ? colorIndex+1 : 0;
+		colorIndex = (colorIndex < 16) ? colorIndex+1 : 0;
 
 		this.xPos = xPos;
 		this.yPos = yPos;
@@ -214,11 +223,13 @@ $(document).ready( function() {
 						stroke: 'black',
 						strokeWidth: 1
 		});
-		this.resline = new ResidualLine(this.color);
+
+		resList.push(new ResidualLine(this.color));
+		currResLine = resList[resList.length-1];
+		residual_layer.add(currResLine.line);
 	}
 
 	Marble.prototype.move = function() {
-		residual_layer.add(this.resline.line);
 		//console.log('***Initiate Move Sequence***');
 		var i = this.currPeg.i;
 		var j = this.currPeg.j;
@@ -244,7 +255,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', first_pos_x);
 			that.shape.setAttr('y', first_pos_y);
 			marble_layer.draw();
-			that.resline.addPoint(first_pos_x, first_pos_y);
+			currResLine.addPoint(first_pos_x, first_pos_y);
 			//console.log('First Position Reached');
 		}, (execSpeed/4)*1 );
 
@@ -254,7 +265,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', second_pos_x);
 			that.shape.setAttr('y', second_pos_y);
 			marble_layer.draw();
-			that.resline.addPoint(second_pos_x, second_pos_y);
+			currResLine.addPoint(second_pos_x, second_pos_y);
 			//console.log('Second Position Reached');
 		}, (execSpeed/4)*2 );
 
@@ -264,7 +275,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', third_pos_x);
 			that.shape.setAttr('y', third_pos_y);
 			marble_layer.draw();
-			that.resline.addPoint(third_pos_x, third_pos_y);
+			currResLine.addPoint(third_pos_x, third_pos_y);
 			//console.log('Third Position Reached');
 		}, (execSpeed/4)*3 );
 
@@ -274,7 +285,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', fourth_pos_x);
 			that.shape.setAttr('y', fourth_pos_y);
 			marble_layer.draw();
-			that.resline.addPoint(fourth_pos_x, fourth_pos_y);
+			currResLine.addPoint(fourth_pos_x, fourth_pos_y);
 			//console.log('Fourth Position Reached');
 		}, (execSpeed/4)*4 );
 
@@ -369,6 +380,7 @@ $(document).ready( function() {
 				lastPeg.outLineText.setY( lastPeg.odoMarble.getY() - lastPeg.outLineText.getHeight()/2 );
 			}
 			updateGraph(lastPeg.j, lastPeg.odometer);
+			updateResList();
 			currMar.destroy();
 			currMar = new Marble(xCoor, yCoor-35);
 			marble_layer.add(currMar.shape);
@@ -508,8 +520,91 @@ $(document).ready( function() {
     	tooltip_status = (!tooltip_status) ? true : false;
     }
 
-/******************************************************* Button and UI Functions ******************************************************/
+/********************************************************** Conway Animations *********************************************************/
+	
+	var conwayText;
+	function runConwayAnimation() {
+		console.log('Conway Simulation Running...');
 
+		var container = $("#conway-animation");
+		var animation = new Kinetic.Stage({
+			container: 'conway-animation',
+			width: container.width(),
+			height: container.height()
+		});
+
+		var conway_text_layer = new Kinetic.Layer();
+		var conway_layer = new Kinetic.Layer();
+		animation.add(conway_layer);
+		animation.add(conway_text_layer);
+
+		//bar graph setup
+		var conway_dist = [ 2, 1, 2, 1, 0, 2, 1, 1, 1, 1, 1 ];
+		var bar_array = new Array();
+		bar_array[0] = new Kinetic.Rect({
+			x: 10,
+			y: 405,
+			width: 30,
+			height: -300,
+			fill: 'blue',
+			stroke: 'black',
+			strokeWidth: 1
+		});
+		conway_layer.add(bar_array[0]);
+		var xInterval = 105;
+		for ( var i=1; i<11; i++ ) {
+			bar_array[i] = bar_array[0].clone({
+				x: xInterval,
+				height: (-150) * conway_dist[i]
+			});
+			xInterval = xInterval + 95;
+			conway_layer.add(bar_array[i]);
+		}
+		conway_layer.draw();
+
+		//text setup
+		// var john_array = [ 'J', 'o', 'h', 'n', ' ', 'C', 'o', 'n', 'w', 'a', 'y' ];
+		// var text_array = new Array();
+		// text_array[0] = new Kinetic.Text({
+		// 	text: 'J',
+		// 	x: 5,
+		// 	y: 125,
+		// 	fontSize: 200,
+		// 	fill: 'yellow',
+		// 	stroke: 'black',
+		// 	strokeWidth: 3
+		// });
+		// conway_text_layer.add(text_array[0]);
+		// var text_xInterval = 85;
+		// for ( var j=1; j<11; j++ ) {
+		// 	text_array[j] = text_array[0].clone({
+		// 		text: john_array[j],
+		// 		x: text_xInterval
+		// 	});
+		// 	text_xInterval = text_xInterval + 80;
+		// 	conway_text_layer.add(text_array[j]);
+		// }
+		// conway_text_layer.draw();
+
+		var text = new Kinetic.Text({
+			text: 'John Conway',
+			x: 5,
+			y: 215,
+			fontSize: 195,
+			fill: 'yellow',
+			stroke: 'black',
+			strokeWidth: 3,
+			visible: false
+		});
+		conway_text_layer.add(text);
+		conway_text_layer.draw();
+
+		console.log("Conway Simulation Ended...");
+
+		return text;
+	}
+
+/******************************************************* Button and UI Functions ******************************************************/
 	$('#start').on('click', function() {
 		console.log('***Simulation Initiated***');
 		simId = setInterval(runSimulation, (execSpeed/4)+execSpeed);
@@ -539,6 +634,17 @@ $(document).ready( function() {
     $("#resline_toggle").on("click", function() {
     	resline_bool = !(resline_bool);
     });
+
+    $("#conwayBtn").on("click", function() {
+    	//console.log('onClick triggered');
+		conwayText = runConwayAnimation();
+    });
+
+    $("#runConway").on("click", function() {
+    	console.log('onClick triggered');
+    	conwayText.show();
+    	conwayText.draw();
+    })
 
 
 }); // End of jQuery doc.ready()
