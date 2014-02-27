@@ -162,10 +162,10 @@ $(document).ready( function() {
 		this.line = new Kinetic.Line({
 						points: [xCoor, yCoor],
 						stroke: color,
-						strokeWidth: 8,
+						strokeWidth: 25,
 						lineCap: 'round',
 						lineJoin: 'round',
-						opacity: 1,
+						opacity: 0.5,
 						tension: 0.3
 		});
 		this.opacity = 1;
@@ -255,7 +255,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', first_pos_x);
 			that.shape.setAttr('y', first_pos_y);
 			marble_layer.draw();
-			currResLine.addPoint(first_pos_x, first_pos_y);
+			currResLine.addPoint(first_pos_x, first_pos_y); //Evana - leave
 			//console.log('First Position Reached');
 		}, (execSpeed/4)*1 );
 
@@ -265,7 +265,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', second_pos_x);
 			that.shape.setAttr('y', second_pos_y);
 			marble_layer.draw();
-			currResLine.addPoint(second_pos_x, second_pos_y);
+			//currResLine.addPoint(second_pos_x, second_pos_y); //Evana - comment out
 			//console.log('Second Position Reached');
 		}, (execSpeed/4)*2 );
 
@@ -275,7 +275,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', third_pos_x);
 			that.shape.setAttr('y', third_pos_y);
 			marble_layer.draw();
-			currResLine.addPoint(third_pos_x, third_pos_y);
+			//currResLine.addPoint(third_pos_x, third_pos_y); //Evana - comment out
 			//console.log('Third Position Reached');
 		}, (execSpeed/4)*3 );
 
@@ -285,7 +285,7 @@ $(document).ready( function() {
 			that.shape.setAttr('x', fourth_pos_x);
 			that.shape.setAttr('y', fourth_pos_y);
 			marble_layer.draw();
-			currResLine.addPoint(fourth_pos_x, fourth_pos_y);
+			currResLine.addPoint(fourth_pos_x, fourth_pos_y); //Evana - comment out for straight lines, leave for jagged
 			//console.log('Fourth Position Reached');
 		}, (execSpeed/4)*4 );
 
