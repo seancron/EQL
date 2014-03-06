@@ -54,7 +54,9 @@ $(document).ready( function() {
 	var stage = new Kinetic.Stage({
 		container: 'display-wrapper',
 		width: div_width,
-		height: div_height
+		height: div_height,
+		scaleX: 1,
+		scaleY: 1
 	});
 
 	var peg_layer = new Kinetic.Layer();
@@ -64,7 +66,6 @@ $(document).ready( function() {
 	var text_layer = new Kinetic.Layer();
 	var bin_layer = new Kinetic.Layer();
 	var residual_layer = new Kinetic.Layer();
-
 
 	var xCoor = (stage.getWidth()/2);
 	var yCoor = 65;
@@ -80,7 +81,7 @@ $(document).ready( function() {
 
 	var pegList = new Array();
 	var resList = new Array();
-	var resline_bool = true;
+	var resline_bool = false;
 	//TODO: Change to individual ratios
 	var ratio = .5; //ratio will be a percentage of leftward movement
 
@@ -187,7 +188,7 @@ $(document).ready( function() {
 
 	var ResLine_Max = 3;
 	function updateResList(newline) {
-		console.log(resList);
+		//console.log(resList);
 		if (resList.length > ResLine_Max ) {
 			var del = resList.shift();
 			del.destroy();
@@ -204,7 +205,7 @@ $(document).ready( function() {
 /****************************************************** Marble and Simulation Functions **************************************************/
 
 	//Speed of the simulation (ms)
-	var execSpeed = 250;
+	var execSpeed = 100;
 	var colorIndex = -1;
 	var currResLine = null;
 
@@ -318,6 +319,21 @@ $(document).ready( function() {
 	stage.add(residual_layer);
 	stage.add(marble_layer);
 	stage.add(text_layer);
+
+	// $('div.kineticjs-content canvas').each( function() {
+	// 	var h = $(this).css('height');
+	// 	var w = $(this).css('width');
+	// 	$(this).attr('height', parseFloat(h)+2);
+	// 	$(this).attr('width', parseFloat(w)+2);
+	// });
+	// peg_layer.draw();
+	// tooltip_layer.draw();
+	// marble_layer.draw();
+	// odometer_layer.draw();
+	// text_layer.draw();
+	// bin_layer.draw();
+	// residual_layer.draw();
+	//stage.draw();
 
 	var simId;
 	var runSimulation = function() {
@@ -440,7 +456,10 @@ $(document).ready( function() {
     			column: {
     				dataLabels: {
     					enabled: true,
-    					color: 'black'
+    					color: 'black',
+    					style: {
+    						fontSize: '40px' //Evana - for numbers above the bars
+    					}
     				}
     			}
     		},
@@ -645,6 +664,11 @@ $(document).ready( function() {
     	conwayText.show();
     	conwayText.draw();
     })
+
+    $("#slider").on("change", function() {
+		execSpeed = $("#slider").val();
+		$("#spd").text(execSpeed);
+    });
 
 
 }); // End of jQuery doc.ready()

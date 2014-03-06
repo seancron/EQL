@@ -19,8 +19,10 @@
 			<button id="pause" class="btn btn-primary" type="button" disabled='true'>Pause...</button>
 			<button id="reset_btn" class="btn btn-danger" type="button">Reset</button>
 			<button id="tooltip_btn" class="btn btn-info" type="button">View Probabilities</button>
-			<button id="resline_toggle" class="btn btn-warning" type="button">Testing: Toggle Residual Lines</button>
-			<a href="#conwayModal" id="conwayBtn" role="button" class="btn btn-inverse" data-toggle="modal">Conway Simulation</a>
+			<!--<button id="resline_toggle" class="btn btn-warning" type="button">Testing: Toggle Residual Lines</button>-->
+			<a href="#conwayModal" id="conwayBtn" role="button" class="btn btn-inverse" data-toggle="modal">Target Distribution</a>
+			<span>Execution Speed: <span id="spd">250</span></span>
+			<input id="slider" type="range" min="100" max="250" step="1" value="250"></input>
 		</div>
 		<div id="display-wrapper" class="well"></div>
 		<div id="graph-wrapper">
