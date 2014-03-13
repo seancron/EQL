@@ -2,10 +2,15 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+	<meta http-equiv='pragma' content='no-cache'>
 	<link type="text/css" rel="stylesheet" href="galton.css"/>
 	<link type="text/css" rel="stylesheet" href="../bootstrap/css/bootstrap.css"/>
+	<link type="text/css" rel="stylesheet" href="bootstrap-switch-master/build/css/bootstrap2/bootstrap-switch.css"/>
 	<!-- <script type="text/javascript" src="../js/jquery.js"></script> -->
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.js"></script>
+	<script type="text/javascript" src="bootstrap-switch-master/build/js/bootstrap-switch.js"></script>
 	<script type="text/javascript" src="../bootstrap/js/bootstrap.js"></script>
 	<script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.7.2.js"></script>
 	<script src="http://code.highcharts.com/highcharts.js"></script>
@@ -21,8 +26,7 @@
 			<button id="tooltip_btn" class="btn btn-info" type="button">View Probabilities</button>
 			<!--<button id="resline_toggle" class="btn btn-warning" type="button">Testing: Toggle Residual Lines</button>-->
 			<a href="#conwayModal" id="conwayBtn" role="button" class="btn btn-inverse" data-toggle="modal">Target Distribution</a>
-			<span>Execution Speed: <span id="spd">250</span></span>
-			<input id="slider" type="range" min="100" max="250" step="1" value="250"></input>
+			<input id="speed-switch" name='speedSwitch' type="checkbox" checked data-on-text="Slow" data-off-text="Fast" data-label-text="Speed"></input>
 		</div>
 		<div id="display-wrapper" class="well"></div>
 		<div id="graph-wrapper">
@@ -38,23 +42,6 @@
 				<a href="#" class="btn" data-dismiss="modal">Close</a>
 			</div>
 		</div>
-
-		<!-- Histogram Modal -->
-<!-- 		<div class="modal hide" id="graphModal">
-          <div class="modal-header">
-            <button class="close" data-dismiss="modal">×</button>
-            <h4>Odometer functions of Marble Nodes</h4>
-          </div>
-          <div class="modal-body">            
-          	The Graph Data button will append a new div here
-          </div>
-          <div class="modal-footer">
-          	<button id="modal-pause" class="btn btn-primary" type="button">Cont/Pause</button>
-            <a href="#" class="btn" data-dismiss="modal">Close</a>
-          </div>
-        </div> -->
-        <!-- End of Histogram Modal -->
-
 	</div>
 </body>
 </html>

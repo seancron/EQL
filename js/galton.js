@@ -22,6 +22,9 @@ $(document).ready( function() {
 	$("#start").removeAttr("disabled");
 	$("#pause").attr('disabled', 'true');
 	$("#modal-pause").removeAttr("disabled");
+	//window.parent.document.body.style.zoom = 1.0;
+	$("[name='speedSwitch']").bootstrapSwitch();
+	$("#speed-switch").bootstrapSwitch('state', true);
 
 /**************************************** Peg and 'Board' Setup Functions *************************************************/
 
@@ -205,7 +208,7 @@ $(document).ready( function() {
 /****************************************************** Marble and Simulation Functions **************************************************/
 
 	//Speed of the simulation (ms)
-	var execSpeed = 100;
+	var execSpeed = 250;
 	var colorIndex = -1;
 	var currResLine = null;
 
@@ -320,12 +323,15 @@ $(document).ready( function() {
 	stage.add(marble_layer);
 	stage.add(text_layer);
 
+					// **Bug Fix** \\
 	// $('div.kineticjs-content canvas').each( function() {
 	// 	var h = $(this).css('height');
-	// 	var w = $(this).css('width');
+	//var w = $(this).css('width');
 	// 	$(this).attr('height', parseFloat(h)+2);
 	// 	$(this).attr('width', parseFloat(w)+2);
 	// });
+	// var w = $('div.kineticjs-content canvas').css('width');
+	// peg_layer.width(parseFloat(w));
 	// peg_layer.draw();
 	// tooltip_layer.draw();
 	// marble_layer.draw();
@@ -361,7 +367,7 @@ $(document).ready( function() {
 								fontSize: 24,
 								fontFamily: 'Arial',
 								fill: 'white',
-								visible: true
+								visible: false
 				});
 				lastPeg.odoText.setX( lastPeg.odoMarble.getX() - lastPeg.odoText.getWidth()/2 );
 				lastPeg.odoText.setY( lastPeg.odoMarble.getY() - lastPeg.odoText.getHeight()/2 );
@@ -375,7 +381,7 @@ $(document).ready( function() {
 								fill: 'black',
 								stroke: 'black',
 								strokeWidth: 1.85,
-								visible: true
+								visible: false
 				});
 				lastPeg.outLineText.setX( lastPeg.odoMarble.getX() - lastPeg.outLineText.getWidth()/2 );
 				lastPeg.outLineText.setY( lastPeg.odoMarble.getY() - lastPeg.outLineText.getHeight()/2 );
@@ -459,7 +465,9 @@ $(document).ready( function() {
     					color: 'black',
     					style: {
     						fontSize: '40px' //Evana - for numbers above the bars
-    					}
+    					},
+    					crop: false,
+    					overflow: 'none'
     				}
     			}
     		},
@@ -665,10 +673,13 @@ $(document).ready( function() {
     	conwayText.draw();
     })
 
-    $("#slider").on("change", function() {
-		execSpeed = $("#slider").val();
-		$("#spd").text(execSpeed);
-    });
-
+   $('#speed-switch').on('switchChange', function (e, data) {
+		console.log('Speed Changed!');
+		execSpeed = (data.value) ? 250 : 0.000001;
+		//console.log('ExecSpeed:'+execSpeed);
+		//console.log('data:'+data.value);
+		$("#pause").trigger('click');
+		$("#start").trigger('click');
+	});
 
 }); // End of jQuery doc.ready()
