@@ -48,6 +48,8 @@ $(document).ready( function() {
 		});
 		this.tooltipCreated = false;
 	}
+	
+	Kinetic.pixelRatio = 1;
 
 	var colorArray = ['green', 'red', 'blue', 'purple', 'seagreen', 'steelblue', 'navy', 'maroon', 
 						'limegreen', 'aqua', 'indigo', 'olive', 'pink', 'royalblue', 'yellow', 'teal', 'orange'];
